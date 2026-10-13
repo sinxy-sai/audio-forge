@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audio Forge"
+  short_description: "Create editable local music and sound-effect WAVs"
+  default_prompt: "Create a short WAV prototype from my music or sound-effect brief, keep the Python source editable, and inspect the rendered file."
