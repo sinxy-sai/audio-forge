@@ -39,5 +39,5 @@
 **Files:** `references/presets.md`
 
 - [x] Document starting presets for music, UI click, confirmation, warning, impact, rising cue, and whoosh.
-- [ ] Run the official skill validator.
-- [ ] Render and inspect a smoke-test WAV with zero clipping.
+- [x] Run the official skill validator.
+- [x] Render and inspect a smoke-test WAV with zero clipping.
