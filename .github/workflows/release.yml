@@ -1,0 +1,62 @@
+name: Release Audio Forge
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate release tag and skill layout
+        run: python tools/release/validate_skill.py "${GITHUB_REF_NAME}"
+
+      - name: Compile Python sources
+        run: python -m py_compile scripts/*.py examples/*.py tools/release/*.py
+
+      - name: Render WAV smoke test
+        run: |
+          python scripts/synth_tone.py "$RUNNER_TEMP/audio-forge-smoke.wav" --frequency 440 --duration 0.25 --channels 1
+          python scripts/inspect_wav.py "$RUNNER_TEMP/audio-forge-smoke.wav" --fail-on-clip
+
+      - name: Build release archives
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir -p dist
+          git archive --format=tar.gz --prefix="audio-forge-${TAG}/" --output="dist/audio-forge-${TAG}.tar.gz" "${TAG}"
+          git archive --format=zip --prefix="audio-forge-${TAG}/" --output="dist/audio-forge-${TAG}.zip" "${TAG}"
+          (cd dist && sha256sum "audio-forge-${TAG}.tar.gz" "audio-forge-${TAG}.zip" > SHA256SUMS.txt)
+
+      - name: Generate release notes
+        env:
+          TAG: ${{ github.ref_name }}
+        run: python tools/release/generate_release_notes.py "$TAG" --output release-notes.md
+
+      - name: Create regular GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "Audio Forge $TAG" \
+            --verify-tag \
+            --notes-file release-notes.md \
+            --latest \
+            "dist/audio-forge-${TAG}.tar.gz" \
+            "dist/audio-forge-${TAG}.zip" \
+            dist/SHA256SUMS.txt
