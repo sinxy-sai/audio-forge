@@ -16,13 +16,23 @@ Use this skill to turn a music or sound-effect brief into a small, editable, loc
 - This skill creates prototypes and game/product assets. Do not describe the output as professional mastering or guaranteed commercial-release audio.
 - Do not call external audio-generation services, upload files, or publish output without explicit user instructions.
 - Keep the user's requested duration, format, and loop behavior exact when they are provided.
+- Treat the caller's current working directory as the workspace root. The skill installation directory is read-only reference material, never an output directory.
+- Never create generated audio, source scripts, briefs, README files, or project folders inside the skill installation directory, including its `scripts/`, `references/`, `agents/`, or `examples/` folders.
 
 ## Workflow
 
 1. Classify the request as **music** or **sound effect**.
 2. Extract the brief: purpose, duration, mood, style, pitch or tempo, main timbres, loop requirement, sample rate, channel count, and output location.
 3. Ask only for missing details that materially affect the result. Otherwise use these defaults and state them: 44,100 Hz, 16-bit PCM WAV, stereo for music, mono for short effects, and a short fade-in/fade-out to prevent clicks.
-4. Create a project with:
+4. Resolve the output root before creating files. If the user gives an output path, resolve a relative path from the caller's current working directory. Otherwise create a project directory named from the user's requested asset under the caller's current working directory, for example `bundle/jump-effect/`. State the absolute output root before rendering.
+
+   ```text
+   <caller-current-working-directory>/<project-slug>/
+   ```
+
+   Do not use the skill directory as a fallback when the requested name or output path is missing; ask for the missing project name or use a clearly stated slug under the caller's current working directory.
+
+5. Create the project with:
 
    ```text
    project/
@@ -36,10 +46,10 @@ Use this skill to turn a music or sound-effect brief into a small, editable, loc
 
    If the user only requests a quick preview, a WAV and source script may be placed directly in the requested folder.
 
-5. Build the sound from explicit layers such as oscillators, envelopes, noise bursts, pulses, pitch glides, stereo pan, and short delays. Keep parameters near the top of the generated script.
-6. Render the WAV by running the source script. Prefer the bundled `scripts/synth_tone.py` as a small reference or smoke-test generator; adapt it rather than hiding the whole composition in opaque code.
-7. Inspect the actual output with `scripts/inspect_wav.py`. Report duration, sample rate, bit depth, channels, peak level, and clipping count. If clipping is present, lower the gain and render again unless the user explicitly requested a clipped/lo-fi effect.
-8. Report absolute paths to the WAV and source, plus the checks that were run. Mention any defaults or limitations that affected the result.
+6. Build the sound from explicit layers such as oscillators, envelopes, noise bursts, pulses, pitch glides, stereo pan, and short delays. Keep parameters near the top of the generated script.
+7. Render the WAV by running the source script. Prefer the bundled `scripts/synth_tone.py` as a small reference or smoke-test generator; adapt it rather than hiding the whole composition in opaque code. The generated script must live under the resolved output root, not beside the skill instructions.
+8. Inspect the actual output with `scripts/inspect_wav.py`. Report duration, sample rate, bit depth, channels, peak level, and clipping count. If clipping is present, lower the gain and render again unless the user explicitly requested a clipped/lo-fi effect.
+9. Report absolute paths to the WAV and source, plus the checks that were run. Mention any defaults or limitations that affected the result.
 
 ## Music mode
 

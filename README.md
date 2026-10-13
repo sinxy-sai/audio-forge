@@ -50,6 +50,16 @@ Render a 44.1 kHz stereo WAV and keep the editable source script.
 
 The skill will ask for missing details when they materially affect the result and will state any defaults it uses.
 
+## Where generated files go
+
+Audio Forge writes generated projects under the caller's current working directory, not inside the installed skill repository. For example, when Codex is running with `bundle` as its workspace and the requested asset is `jump-effect`, the default output root is:
+
+```text
+bundle/jump-effect/
+```
+
+Relative output paths are resolved from the caller's current working directory. The skill directory contains instructions and helper resources only; it is not used for generated WAV files, source scripts, briefs, or project notes.
+
 ## Included tools
 
 ```text
