@@ -8,6 +8,7 @@ venv/
 env/
 renders/*
 !renders/.gitkeep
+docs/private/
 *.wav
 *.mp3
 *.flac
