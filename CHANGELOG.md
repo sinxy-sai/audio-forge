@@ -4,6 +4,8 @@ All notable changes to Audio Forge are documented here.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-18
+
 ### Added
 
 - Separated CLI argument parsing from command execution.
@@ -15,8 +17,7 @@ All notable changes to Audio Forge are documented here.
 
 - Voice rendering now passes a validated executable and model into the Piper backend.
 - Error messages identify the missing project configuration or file directly.
-
-## [0.2.0]
+- Removed repository helper scripts; CLI smoke checks now use `python -m audioforge`.
 
 ### Added
 

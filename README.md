@@ -69,14 +69,12 @@ Then ask:
 Use Audio Forge to render the Chinese voice line “任务完成” with the local Piper voice model. Keep the AudioProject manifest and inspect the WAV.
 ```
 
-## Included helper scripts
+## Core CLI and package
 
 ```text
-scripts/synth_tone.py   Minimal dependency-free WAV generator
-scripts/inspect_wav.py  WAV metadata, peak, and clipping inspector
 audioforge/             Local-first CLI and backend adapters
-references/presets.md   Starting points for common music and effect types
-examples/ui_confirm.py  Small editable confirmation-effect example
+references/             Presets, project protocol, and project configuration
+examples/               Small editable code examples
 .github/scripts/        Release-only validation and notes helpers
 ```
 
@@ -93,38 +91,19 @@ audioforge/
 `-- wav.py        PCM WAV writing and inspection
 ```
 
-Run the helper scripts directly from the repository:
+Run the CLI from the repository root:
 
 ```powershell
-python scripts/synth_tone.py "$env:TEMP\audio-forge-tone.wav" --frequency 440 --duration 0.5
-python scripts/inspect_wav.py "$env:TEMP\audio-forge-tone.wav" --fail-on-clip
+python -m audioforge generate sfx --brief "bright confirmation click" --duration 0.2 --output "$env:TEMP\audio-forge-sfx"
+python -m audioforge inspect "$env:TEMP\audio-forge-sfx\renders\sfx.wav" --fail-on-clip
 python examples/ui_confirm.py "$env:TEMP\audio-forge-ui-confirm.wav"
-python scripts/inspect_wav.py "$env:TEMP\audio-forge-ui-confirm.wav" --fail-on-clip
+python -m audioforge inspect "$env:TEMP\audio-forge-ui-confirm.wav" --fail-on-clip
 python -m audioforge doctor
 ```
 
 Procedural commands use Python's standard library and do not require package installation. Audio Forge does not create a `.venv` automatically. Voice generation additionally requires a Piper executable and voice model available to the work project and configured in `audioforge.config.json`.
 
 Voice rendering defaults to Piper volume `0.95` so the generated WAV keeps headroom. Override it with `--volume` when needed.
-
-## Output layout
-
-Generated projects should keep the brief, manifest, source parameters, render, and delivery notes together:
-
-```text
-project/
-|-- project.json
-|-- brief.md
-|-- source/
-|   `-- parameters.json
-|-- renders/
-|   `-- *.wav
-|-- metadata/
-|   `-- backend.json
-`-- README.md
-```
-
-The `project.json` layout is documented in `references/project-protocol.md` and is reserved for a future browser editor.
 
 ## License
 

@@ -18,7 +18,7 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
 - Do not call external audio-generation services, upload files, or publish output without explicit user instructions.
 - Keep the user's requested duration, format, and loop behavior exact when they are provided.
 - Treat the caller's current working directory as the workspace root. The skill installation directory is read-only reference material, never an output directory.
-- Never create generated audio, source parameters, briefs, README files, or project folders inside the skill installation directory, including its `scripts/`, `references/`, `agents/`, or `examples/` folders.
+- Never create generated audio, source parameters, briefs, README files, or project folders inside the skill installation directory, including its `references/`, `agents/`, or `examples/` folders.
 
 ## Workflow
 
@@ -50,7 +50,7 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
 
 6. For music and effects, use `python -m audioforge generate`; keep parameters in `source/parameters.json` and the manifest in `project.json`.
 7. For voice, use `python -m audioforge generate voice` with the work project's `audioforge.config.json`. The default Piper volume is `0.95` to leave headroom; change it only when the brief requires a different level. Store project-relative tool and model paths in generated metadata. If the project config or Piper files are unavailable, report the exact project path that is missing; do not silently switch to a cloud service.
-8. Inspect the actual output with `scripts/inspect_wav.py` or `python -m audioforge inspect`. Report duration, sample rate, bit depth, channels, peak level, and clipping count. If clipping is present, lower the gain and render again unless the user explicitly requested a clipped/lo-fi effect.
+8. Inspect the actual output with `python -m audioforge inspect`. Report duration, sample rate, bit depth, channels, peak level, and clipping count. If clipping is present, lower the gain and render again unless the user explicitly requested a clipped/lo-fi effect.
 9. Report absolute paths to the project, WAV, and parameters, plus the checks that were run. Mention any defaults or limitations that affected the result.
 
 ## Music mode
@@ -72,7 +72,5 @@ Keep effects short and leave a clean tail. Use stereo movement only when it supp
 ## Supporting resources
 
 - Read [references/presets.md](references/presets.md) when choosing a starting point for a common music or sound-effect type.
-- Use [scripts/synth_tone.py](scripts/synth_tone.py) as a dependency-free WAV generation example.
-- Use [scripts/inspect_wav.py](scripts/inspect_wav.py) after every render to verify the file that was actually written.
 - Read [references/project-protocol.md](references/project-protocol.md) when a task needs to exchange an AudioProject with a future browser editor.
 - Read [references/project-config.md](references/project-config.md) when configuring Piper for a work project.

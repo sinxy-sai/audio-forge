@@ -12,8 +12,6 @@ ROOT = Path(__file__).resolve().parents[2]
 REQUIRED_FILES = (
     Path("SKILL.md"),
     Path("agents/openai.yaml"),
-    Path("scripts/synth_tone.py"),
-    Path("scripts/inspect_wav.py"),
     Path("references/presets.md"),
     Path("CHANGELOG.md"),
     Path("SECURITY.md"),

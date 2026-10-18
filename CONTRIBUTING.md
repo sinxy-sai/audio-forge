@@ -2,7 +2,7 @@
 
 Contributions are welcome for clearer skill guidance, better standard-library synthesis examples, and reliable WAV inspection.
 
-Keep implementation code under `audioforge/`, user-facing references under `references/`, direct helper commands under `scripts/`, and release-only maintenance scripts under `.github/scripts/`.
+Keep implementation code under `audioforge/`, user-facing references under `references/`, small editable examples under `examples/`, and release-only maintenance scripts under `.github/scripts/`.
 
 ## Before opening a change
 
@@ -20,8 +20,8 @@ Keep implementation code under `audioforge/`, user-facing references under `refe
 From the repository root, run:
 
 ```powershell
-python scripts/synth_tone.py "$env:TEMP\audio-forge-contributing.wav" --frequency 440 --duration 0.25
-python scripts/inspect_wav.py "$env:TEMP\audio-forge-contributing.wav" --fail-on-clip
+python -m audioforge generate sfx --brief "contributing smoke click" --duration 0.25 --output "$env:TEMP\audio-forge-contributing"
+python -m audioforge inspect "$env:TEMP\audio-forge-contributing\renders\sfx.wav" --fail-on-clip
 python -m audioforge doctor
 ```
 

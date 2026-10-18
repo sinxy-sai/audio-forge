@@ -26,12 +26,12 @@ jobs:
         run: python .github/scripts/validate_skill.py "${GITHUB_REF_NAME}"
 
       - name: Compile Python sources
-        run: python -m py_compile scripts/*.py examples/*.py .github/scripts/*.py
+        run: python -m py_compile audioforge/*.py examples/*.py .github/scripts/*.py
 
       - name: Render WAV smoke test
         run: |
-          python scripts/synth_tone.py "$RUNNER_TEMP/audio-forge-smoke.wav" --frequency 440 --duration 0.25 --channels 1
-          python scripts/inspect_wav.py "$RUNNER_TEMP/audio-forge-smoke.wav" --fail-on-clip
+          python -m audioforge generate sfx --brief "release smoke click" --duration 0.25 --output "$RUNNER_TEMP/audio-forge-smoke"
+          python -m audioforge inspect "$RUNNER_TEMP/audio-forge-smoke/renders/sfx.wav" --fail-on-clip
 
       - name: Build release archives
         env:
