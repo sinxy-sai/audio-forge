@@ -2,7 +2,7 @@
 
 Contributions are welcome for clearer skill guidance, better standard-library synthesis examples, and reliable WAV inspection.
 
-Keep implementation code under `audioforge/`, user-facing references under `references/`, and deterministic command helpers under `scripts/` or `tools/`.
+Keep implementation code under `audioforge/`, user-facing references under `references/`, direct helper commands under `scripts/`, and release-only maintenance scripts under `.github/scripts/`.
 
 ## Before opening a change
 
@@ -12,6 +12,7 @@ Keep implementation code under `audioforge/`, user-facing references under `refe
 - Keep the skill focused on local music, sound-effect, and Piper voice WAV projects.
 - Update the README when a command, file, or installation path changes.
 - Keep Piper paths in project-local `audioforge.config.json`; do not add system environment configuration to the skill.
+- Do not assume or create a virtual environment as part of the skill; document any optional local setup separately.
 - Update `CHANGELOG.md` under `Unreleased` when behavior or user-facing commands change.
 
 ## Local checks
@@ -19,8 +20,8 @@ Keep implementation code under `audioforge/`, user-facing references under `refe
 From the repository root, run:
 
 ```powershell
-python scripts/synth_tone.py renders/contributing-smoke.wav --frequency 440 --duration 0.25
-python scripts/inspect_wav.py renders/contributing-smoke.wav --fail-on-clip
+python scripts/synth_tone.py "$env:TEMP\audio-forge-contributing.wav" --frequency 440 --duration 0.25
+python scripts/inspect_wav.py "$env:TEMP\audio-forge-contributing.wav" --fail-on-clip
 python -m audioforge doctor
 ```
 
@@ -29,8 +30,6 @@ Also run the Codex skill validator when editing `SKILL.md` or `agents/openai.yam
 ```powershell
 python <CODEX_HOME>\skills\.system\skill-creator\scripts\quick_validate.py .
 ```
-
-Remove generated files under `renders/` before committing unless they are intentionally documented examples.
 
 Before opening a pull request, run `python -m compileall -q audioforge`, the skill validator, and the relevant CLI smoke commands.
 

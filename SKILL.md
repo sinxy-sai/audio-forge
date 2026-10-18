@@ -11,7 +11,7 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
 
 ## Operating boundary
 
-- Use the `audioforge` CLI and Python standard library by default. Do not install packages or download samples unless the user explicitly asks for a different workflow.
+- Use the `audioforge` CLI and Python standard library by default. Do not install packages, create a `.venv`, or download samples unless the user explicitly asks for a different workflow.
 - Piper is the only voice backend currently provided. Resolve its executable and voice model from the work project's `audioforge.config.json`; do not use system environment variables or make it a dependency of music or sound-effect tasks.
 - Produce an editable `project.json` and source parameters alongside the WAV so the result can be regenerated.
 - This skill creates prototypes and game/product assets. Do not describe the output as professional mastering or guaranteed commercial-release audio.

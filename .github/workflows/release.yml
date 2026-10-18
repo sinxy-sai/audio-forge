@@ -23,10 +23,10 @@ jobs:
           python-version: "3.x"
 
       - name: Validate release tag and skill layout
-        run: python tools/release/validate_skill.py "${GITHUB_REF_NAME}"
+        run: python .github/scripts/validate_skill.py "${GITHUB_REF_NAME}"
 
       - name: Compile Python sources
-        run: python -m py_compile scripts/*.py examples/*.py tools/release/*.py
+        run: python -m py_compile scripts/*.py examples/*.py .github/scripts/*.py
 
       - name: Render WAV smoke test
         run: |
@@ -45,7 +45,7 @@ jobs:
       - name: Generate release notes
         env:
           TAG: ${{ github.ref_name }}
-        run: python tools/release/generate_release_notes.py "$TAG" --output release-notes.md
+        run: python .github/scripts/generate_release_notes.py "$TAG" --output release-notes.md
 
       - name: Create regular GitHub Release
         env:

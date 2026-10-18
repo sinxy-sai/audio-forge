@@ -16,7 +16,7 @@ This release is published as a regular GitHub Release. Alpha and beta tags use t
 
 ## Validation
 
-- Skill structure: passed by `tools/release/validate_skill.py`
+- Skill structure: passed by `.github/scripts/validate_skill.py`
 - Python compilation: passed by the release workflow
 - WAV smoke test: passed by the release workflow
 - Clipping check: passed by the release workflow

@@ -9,6 +9,7 @@ All notable changes to Audio Forge are documented here.
 - Separated CLI argument parsing from command execution.
 - Added project-local `VoiceConfig` resolution for Piper.
 - Added repository security, contribution conduct, and changelog documentation.
+- Moved release-only maintenance scripts under `.github/scripts/`.
 
 ### Changed
 

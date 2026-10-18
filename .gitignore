@@ -6,8 +6,7 @@ __pycache__/
 .venv/
 venv/
 env/
-renders/*
-!renders/.gitkeep
+/tools/
 docs/private/
 *.wav
 *.mp3

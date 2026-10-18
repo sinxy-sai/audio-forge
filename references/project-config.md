@@ -8,13 +8,13 @@ Audio Forge 的本地工具和模型配置属于工作项目，不写入系统�
 {
   "voice": {
     "backend": "piper",
-    "executable": "tools/piper/piper.exe",
+    "executable": ".venv/Scripts/piper.exe",
     "model": "models/voices/zh_CN.onnx"
   }
 }
 ```
 
-`executable` 和 `model` 都相对于配置文件所在目录解析。配置文件可以位于生成项目的任意父目录，CLI 会从当前目录和输出项目目录向上查找。
+`executable` 和 `model` 都相对于配置文件所在目录解析。它们可以指向工作目录的 `.venv`，但 Audio Forge 不会自动创建或填充 `.venv`。配置文件可以位于生成项目的任意父目录，CLI 会从当前目录和输出项目目录向上查找。
 
 也可以显式指定配置：
 

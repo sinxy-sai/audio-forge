@@ -37,7 +37,7 @@ Ask Codex for a concrete audio task, for example:
 
 ```text
 Use Audio Forge to create a 0.4 second confirmation sound for a game UI.
- Make it bright, with two rising tones, render a WAV, keep the project parameters,
+Make it bright, with two rising tones, render a WAV, keep the project parameters,
 and inspect the output for clipping.
 ```
 
@@ -57,7 +57,7 @@ For a local voice project, add `audioforge.config.json` to the work project. Its
 {
   "voice": {
     "backend": "piper",
-    "executable": "tools/piper/piper.exe",
+    "executable": ".venv/Scripts/piper.exe",
     "model": "models/voices/zh_CN.onnx"
   }
 }
@@ -69,7 +69,7 @@ Then ask:
 Use Audio Forge to render the Chinese voice line “任务完成” with the local Piper voice model. Keep the AudioProject manifest and inspect the WAV.
 ```
 
-## Included tools
+## Included helper scripts
 
 ```text
 scripts/synth_tone.py   Minimal dependency-free WAV generator
@@ -77,6 +77,7 @@ scripts/inspect_wav.py  WAV metadata, peak, and clipping inspector
 audioforge/             Local-first CLI and backend adapters
 references/presets.md   Starting points for common music and effect types
 examples/ui_confirm.py  Small editable confirmation-effect example
+.github/scripts/        Release-only validation and notes helpers
 ```
 
 The Python package is intentionally split by responsibility:
@@ -92,17 +93,17 @@ audioforge/
 `-- wav.py        PCM WAV writing and inspection
 ```
 
-Run the tools directly from the repository:
+Run the helper scripts directly from the repository:
 
 ```powershell
-python scripts/synth_tone.py renders/tone.wav --frequency 440 --duration 0.5
-python scripts/inspect_wav.py renders/tone.wav --fail-on-clip
-python examples/ui_confirm.py renders/ui-confirm.wav
-python scripts/inspect_wav.py renders/ui-confirm.wav --fail-on-clip
+python scripts/synth_tone.py "$env:TEMP\audio-forge-tone.wav" --frequency 440 --duration 0.5
+python scripts/inspect_wav.py "$env:TEMP\audio-forge-tone.wav" --fail-on-clip
+python examples/ui_confirm.py "$env:TEMP\audio-forge-ui-confirm.wav"
+python scripts/inspect_wav.py "$env:TEMP\audio-forge-ui-confirm.wav" --fail-on-clip
 python -m audioforge doctor
 ```
 
-Procedural commands use Python's standard library and do not require package installation. Voice generation additionally requires the work project's Piper executable and voice model configured in `audioforge.config.json`.
+Procedural commands use Python's standard library and do not require package installation. Audio Forge does not create a `.venv` automatically. Voice generation additionally requires a Piper executable and voice model available to the work project and configured in `audioforge.config.json`.
 
 Voice rendering defaults to Piper volume `0.95` so the generated WAV keeps headroom. Override it with `--volume` when needed.
 
