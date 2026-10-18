@@ -13,6 +13,7 @@ REQUIRED_FILES = (
     Path("SKILL.md"),
     Path("agents/openai.yaml"),
     Path("references/presets.md"),
+    Path("references/voice-model-selection.md"),
     Path("CHANGELOG.md"),
     Path("SECURITY.md"),
     Path("CODE_OF_CONDUCT.md"),

@@ -103,6 +103,8 @@ python -m audioforge doctor
 
 Procedural commands use Python's standard library and do not require package installation. Audio Forge does not create a `.venv` automatically. Voice generation additionally requires a Piper executable and voice model available to the work project and configured in `audioforge.config.json`.
 
+For local voice and speech-recognition model choices, see [references/voice-model-selection.md](references/voice-model-selection.md). Piper is integrated now; CosyVoice and faster-whisper are documented as planned local backends and are not downloaded automatically.
+
 Voice rendering defaults to Piper volume `0.95` so the generated WAV keeps headroom. Override it with `--volume` when needed.
 
 ## License

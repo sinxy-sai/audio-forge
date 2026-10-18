@@ -4,6 +4,10 @@ All notable changes to Audio Forge are documented here.
 
 ## [Unreleased]
 
+### Documentation
+
+- Added local voice, voice-cloning, speech-recognition, model-size, and ONNX selection guidance.
+
 ## [0.2.0] - 2026-10-18
 
 ### Added

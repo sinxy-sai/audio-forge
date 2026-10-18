@@ -74,3 +74,4 @@ Keep effects short and leave a clean tail. Use stereo movement only when it supp
 - Read [references/presets.md](references/presets.md) when choosing a starting point for a common music or sound-effect type.
 - Read [references/project-protocol.md](references/project-protocol.md) when a task needs to exchange an AudioProject with a future browser editor.
 - Read [references/project-config.md](references/project-config.md) when configuring Piper for a work project.
+- Read [references/voice-model-selection.md](references/voice-model-selection.md) when choosing a local voice, voice-cloning, or speech-recognition model.
