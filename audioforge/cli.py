@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from .commands import doctor, export, generate, inspect
+from .commands import doctor, export, generate, inspect, transcribe
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -47,6 +47,18 @@ def build_parser() -> argparse.ArgumentParser:
     inspect_parser.add_argument("path")
     inspect_parser.add_argument("--fail-on-clip", action="store_true")
     inspect_parser.set_defaults(handler=inspect)
+
+    transcribe_parser = subparsers.add_parser("transcribe", help="transcribe audio into a project analysis")
+    transcribe_parser.add_argument("--audio", required=True, help="source audio file")
+    transcribe_parser.add_argument("--output", required=True, help="AudioProject directory")
+    transcribe_parser.add_argument("--config")
+    transcribe_parser.add_argument("--model", help="one-off faster-whisper model directory override")
+    transcribe_parser.add_argument("--device")
+    transcribe_parser.add_argument("--compute-type")
+    transcribe_parser.add_argument("--language")
+    transcribe_parser.add_argument("--beam-size", type=int, default=1)
+    transcribe_parser.add_argument("--no-vad", action="store_true")
+    transcribe_parser.set_defaults(handler=transcribe)
 
     export_parser = subparsers.add_parser("export", help="convert the first project output with FFmpeg")
     export_parser.add_argument("project")

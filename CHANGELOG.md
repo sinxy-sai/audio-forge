@@ -7,6 +7,7 @@ All notable changes to Audio Forge are documented here.
 ### Documentation
 
 - Added local voice, voice-cloning, speech-recognition, model-size, and ONNX selection guidance.
+- Added the `transcribe` CLI command with faster-whisper project analysis outputs.
 
 ## [0.2.0] - 2026-10-18
 

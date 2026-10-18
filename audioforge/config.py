@@ -19,6 +19,15 @@ class VoiceConfig:
     model: Path
 
 
+@dataclass(frozen=True)
+class AsrConfig:
+    config_file: Path
+    backend: str
+    model: Path
+    device: str
+    compute_type: str
+
+
 def find_config(explicit: str | None = None, search_paths: list[Path] | None = None) -> Path | None:
     if explicit:
         candidate = Path(explicit).expanduser().resolve()
@@ -76,3 +85,49 @@ def load_voice_config(
     model = _resolve(config_file, model_override or voice.get("model"), "model")
     return VoiceConfig(config_file=config_file, executable=executable, model=model)
 
+
+
+def load_asr_config(
+    explicit: str | None = None,
+    search_paths: list[Path] | None = None,
+    model_override: str | None = None,
+    device_override: str | None = None,
+    compute_type_override: str | None = None,
+) -> AsrConfig:
+    config_file = find_config(explicit, search_paths)
+    if not config_file:
+        if not model_override:
+            raise ConfigUnavailable("audioforge.config.json was not found in the work project")
+        model = Path(model_override).expanduser().resolve()
+        if not model.is_dir():
+            raise ConfigUnavailable(f"ASR model directory does not exist: {model}")
+        return AsrConfig(
+            config_file=Path.cwd(),
+            backend="faster-whisper",
+            model=model,
+            device=device_override or "cpu",
+            compute_type=compute_type_override or "int8",
+        )
+
+    data = _load(config_file)
+    asr = data.get("asr")
+    if not isinstance(asr, dict):
+        raise ConfigUnavailable(f"ASR configuration is missing in {config_file}")
+    backend = str(asr.get("backend", "faster-whisper"))
+    if backend != "faster-whisper":
+        raise ConfigUnavailable(f"unsupported ASR backend: {backend}")
+    model_value = model_override or asr.get("model")
+    if not model_value:
+        raise ConfigUnavailable(f"asr.model is missing in {config_file}")
+    model = Path(str(model_value)).expanduser()
+    model = model if model.is_absolute() else config_file.parent / model
+    model = model.resolve()
+    if not model.is_dir():
+        raise ConfigUnavailable(f"asr.model does not exist: {model}")
+    return AsrConfig(
+        config_file=config_file,
+        backend=backend,
+        model=model,
+        device=device_override or str(asr.get("device", "cpu")),
+        compute_type=compute_type_override or str(asr.get("compute_type", "int8")),
+    )

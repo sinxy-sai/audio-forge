@@ -7,9 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .config import ConfigUnavailable, load_voice_config
+from .config import ConfigUnavailable, load_asr_config, load_voice_config
 from .doctor import status
 from .piper import PiperUnavailable, render_voice
+from .transcribe import TranscriptionUnavailable, transcribe_audio, write_transcription
 from .procedural import render_music, render_sfx
 from .project import write_project, write_source_json
 from .wav import inspect_pcm
@@ -65,6 +66,55 @@ def generate(args) -> int:
     print(f"project: {root}")
     print(f"render: {render_path}")
     print_report(inspect_pcm(render_path))
+    return 0
+
+
+def transcribe(args) -> int:
+    root = Path(args.output).expanduser().resolve()
+    audio = Path(args.audio).expanduser().resolve()
+    try:
+        asr = load_asr_config(
+            args.config,
+            [Path.cwd(), root, audio],
+            args.model,
+            args.device,
+            args.compute_type,
+        )
+        result = transcribe_audio(
+            audio,
+            asr=asr,
+            language=args.language,
+            beam_size=args.beam_size,
+            vad_filter=not args.no_vad,
+        )
+        model_path = asr.model
+        try:
+            result["model"] = model_path.relative_to(asr.config_file.parent).as_posix()
+        except ValueError:
+            result["model"] = model_path.as_posix()
+        json_path, text_path = write_transcription(root, audio, result)
+        manifest_path = root / "project.json"
+        if manifest_path.is_file():
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest.setdefault("analysis", {})["transcription"] = {
+                "json": "analysis/transcript.json",
+                "text": "analysis/transcript.txt",
+                "backend": result["backend"],
+                "language": result["language"],
+            }
+            manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    except (ConfigUnavailable, TranscriptionUnavailable, OSError, ValueError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 2
+
+    print(f"project: {root}")
+    print(f"audio: {audio}")
+    print(f"transcript_json: {json_path}")
+    print(f"transcript_text: {text_path}")
+    print(f"language: {result['language']}")
+    print(f"language_probability: {result['language_probability']}")
+    for segment in result["segments"]:
+        print(f"[{segment['start']:.2f}-{segment['end']:.2f}] {segment['text']}")
     return 0
 
 

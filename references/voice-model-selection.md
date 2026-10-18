@@ -10,7 +10,7 @@ Audio Forge 的语音后端按任务、资源成本和授权条件选择。模�
 | 中文或多语言声音克隆 | CosyVoice | 高：通常需要数 GB 模型目录和较强 GPU | 计划接入 |
 | 中文定制音色和少样本训练 | GPT-SoVITS | 高：训练、显存和依赖成本高 | 计划评估 |
 | 轻量音色转换 | OpenVoice | 中 | 计划评估 |
-| 普通语音转文字 | faster-whisper small + int8 | 中低：约数百 MB到 1 GB | 计划接入 |
+| 普通语音转文字 | faster-whisper small + int8 | 中低：约数百 MB到 1 GB | 已接入 |
 | 高准确率语音转文字 | faster-whisper medium/large-v3 | 高：约 1.5–4 GB | 可选配置 |
 | 低配置 CPU 转录 | whisper.cpp | 低到中 | 可选配置 |
 
@@ -57,7 +57,7 @@ Whisper 是语音识别模型，负责把声音转换为文字。它不负责声
 | medium | 约 1.5–2.5 GB | 更高准确率 |
 | large-v3 | 约 3–4 GB | 高质量批量转录 |
 
-`int8` 可以降低内存和显存占用；`float16` 通常更适合 GPU。Audio Forge 计划默认支持 `small + int8`。
+`int8` 可以降低内存和显存占用；`float16` 通常更适合 GPU。Audio Forge 当前支持配置本地 `faster-whisper`；tiny 适合快速试用，`small + int8` 是更好的中文起点。
 
 ### 其他识别运行时
 
@@ -119,4 +119,4 @@ Audio Forge 只读取配置、检查文件、调用已安装后端并记录 meta
 }
 ```
 
-`voice_clone` 和 `asr` 是预留配置，目前 Piper 是唯一已经接入的语音生成后端。
+`voice_clone` 仍是预留配置；Piper 是已接入的语音生成后端，faster-whisper 是已接入的语音识别后端。

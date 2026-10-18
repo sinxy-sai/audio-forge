@@ -9,6 +9,7 @@ It turns a natural-language brief into an `AudioProject`. Procedural music and e
 - Short background cues and loopable musical ideas
 - UI clicks, confirmations, warnings, impacts, rises, and whooshes
 - Local Piper voice rendering
+- Optional local faster-whisper transcription with timestamped project analysis
 - 16-bit PCM WAV output
 - 44.1 kHz by default, with configurable sample rate and channel count
 - Output inspection for duration, format, peak level, and clipping
@@ -88,6 +89,7 @@ audioforge/
 |-- project.py    AudioProject files
 |-- procedural.py music and sound effects
 |-- piper.py      Piper voice backend
+|-- transcribe.py faster-whisper transcription backend
 `-- wav.py        PCM WAV writing and inspection
 ```
 
@@ -99,11 +101,12 @@ python -m audioforge inspect "$env:TEMP\audio-forge-sfx\renders\sfx.wav" --fail-
 python examples/ui_confirm.py "$env:TEMP\audio-forge-ui-confirm.wav"
 python -m audioforge inspect "$env:TEMP\audio-forge-ui-confirm.wav" --fail-on-clip
 python -m audioforge doctor
+python -m audioforge transcribe --audio .\audioforge-real-demo\whisper-input\renders\voice.wav --output .\audioforge-real-demo\whisper-input --config .\audioforge-real-demo\audioforge.config.json --language zh
 ```
 
 Procedural commands use Python's standard library and do not require package installation. Audio Forge does not create a `.venv` automatically. Voice generation additionally requires a Piper executable and voice model available to the work project and configured in `audioforge.config.json`.
 
-For local voice and speech-recognition model choices, see [references/voice-model-selection.md](references/voice-model-selection.md). Piper is integrated now; CosyVoice and faster-whisper are documented as planned local backends and are not downloaded automatically.
+For local voice and speech-recognition model choices, see [references/voice-model-selection.md](references/voice-model-selection.md). Piper and faster-whisper are integrated as local backends. CosyVoice remains a planned voice-cloning backend, and no model is downloaded automatically.
 
 Voice rendering defaults to Piper volume `0.95` so the generated WAV keeps headroom. Override it with `--volume` when needed.
 

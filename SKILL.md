@@ -12,7 +12,8 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
 ## Operating boundary
 
 - Use the `audioforge` CLI and Python standard library by default. Do not install packages, create a `.venv`, or download samples unless the user explicitly asks for a different workflow.
-- Piper is the only voice backend currently provided. Resolve its executable and voice model from the work project's `audioforge.config.json`; do not use system environment variables or make it a dependency of music or sound-effect tasks.
+- Piper is the only voice generation backend currently provided. Resolve its executable and voice model from the work project's `audioforge.config.json`; do not use system environment variables or make it a dependency of music, sound-effect, or transcription tasks.
+- Speech transcription uses the optional local `faster-whisper` backend when configured under `asr`; keep its model directory in the work project and do not download it automatically.
 - Produce an editable `project.json` and source parameters alongside the WAV so the result can be regenerated.
 - This skill creates prototypes and game/product assets. Do not describe the output as professional mastering or guaranteed commercial-release audio.
 - Do not call external audio-generation services, upload files, or publish output without explicit user instructions.
@@ -22,7 +23,7 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
 
 ## Workflow
 
-1. Classify the request as **music**, **sound effect**, or **voice**.
+1. Classify the request as **music**, **sound effect**, **voice**, or **transcription**.
 2. Extract the brief: purpose, text if voice, duration, mood, style, pitch or tempo, main timbres, loop requirement, sample rate, channel count, and output location.
 3. Ask only for missing details that materially affect the result. Otherwise use these defaults and state them: 44,100 Hz, 16-bit PCM WAV, stereo for music, mono for short effects, and a short fade-in/fade-out to prevent clicks.
 4. Resolve the output root before creating files. If the user gives an output path, resolve a relative path from the caller's current working directory. Otherwise create a project directory named from the user's requested asset under the caller's current working directory, for example `bundle/jump-effect/`. State the absolute output root before rendering.
@@ -51,7 +52,8 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
 6. For music and effects, use `python -m audioforge generate`; keep parameters in `source/parameters.json` and the manifest in `project.json`.
 7. For voice, use `python -m audioforge generate voice` with the work project's `audioforge.config.json`. The default Piper volume is `0.95` to leave headroom; change it only when the brief requires a different level. Store project-relative tool and model paths in generated metadata. If the project config or Piper files are unavailable, report the exact project path that is missing; do not silently switch to a cloud service.
 8. Inspect the actual output with `python -m audioforge inspect`. Report duration, sample rate, bit depth, channels, peak level, and clipping count. If clipping is present, lower the gain and render again unless the user explicitly requested a clipped/lo-fi effect.
-9. Report absolute paths to the project, WAV, and parameters, plus the checks that were run. Mention any defaults or limitations that affected the result.
+9. For transcription, write `analysis/transcript.json` and `analysis/transcript.txt` in the work project, and report the language, segments, model, and output paths.
+10. Report absolute paths to the project, WAV, parameters, and transcript outputs, plus the checks that were run. Mention any defaults or limitations that affected the result.
 
 ## Music mode
 
@@ -75,3 +77,4 @@ Keep effects short and leave a clean tail. Use stereo movement only when it supp
 - Read [references/project-protocol.md](references/project-protocol.md) when a task needs to exchange an AudioProject with a future browser editor.
 - Read [references/project-config.md](references/project-config.md) when configuring Piper for a work project.
 - Read [references/voice-model-selection.md](references/voice-model-selection.md) when choosing a local voice, voice-cloning, or speech-recognition model.
+- Use `python -m audioforge transcribe` for a configured local faster-whisper transcription task.

@@ -10,6 +10,12 @@ Audio Forge 的本地工具和模型配置属于工作项目，不写入系统�
     "backend": "piper",
     "executable": ".venv/Scripts/piper.exe",
     "model": "models/voices/zh_CN.onnx"
+  },
+  "asr": {
+    "backend": "faster-whisper",
+    "model": "models/asr/faster-whisper-tiny",
+    "device": "cpu",
+    "compute_type": "int8"
   }
 }
 ```
@@ -27,3 +33,25 @@ python -m audioforge generate voice `
 
 `--piper` 和 `--model` 只用于单次覆盖，不是项目配置的替代方案。
 
+
+
+## 本地转录
+
+安装 `faster-whisper` 后，可以把音频转录结果写入 AudioProject 的 `analysis/`：
+
+```powershell
+python -m audioforge transcribe `
+  --audio .\renders\voice.wav `
+  --output .\voice-project `
+  --config .\audioforge.config.json `
+  --language zh
+```
+
+输出文件：
+
+```text
+voice-project/
+└─ analysis/
+   ├─ transcript.json
+   └─ transcript.txt
+```
