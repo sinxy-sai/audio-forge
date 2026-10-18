@@ -1,0 +1,34 @@
+# Changelog
+
+All notable changes to Audio Forge are documented here.
+
+## [Unreleased]
+
+### Added
+
+- Separated CLI argument parsing from command execution.
+- Added project-local `VoiceConfig` resolution for Piper.
+- Added repository security, contribution conduct, and changelog documentation.
+
+### Changed
+
+- Voice rendering now passes a validated executable and model into the Piper backend.
+- Error messages identify the missing project configuration or file directly.
+
+## [0.2.0]
+
+### Added
+
+- Local-first CLI for procedural music, sound effects, and Piper voice projects.
+- `AudioProject` manifest and browser protocol reference.
+- Project-local `audioforge.config.json` support.
+- WAV inspection and optional FFmpeg export commands.
+
+## [0.1.0]
+
+### Added
+
+- Dependency-free tone and UI confirmation examples.
+- Reproducible WAV inspection utilities.
+- Initial Codex skill guidance and presets.
+

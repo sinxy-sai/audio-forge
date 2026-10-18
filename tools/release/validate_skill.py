@@ -15,12 +15,11 @@ REQUIRED_FILES = (
     Path("scripts/synth_tone.py"),
     Path("scripts/inspect_wav.py"),
     Path("references/presets.md"),
+    Path("CHANGELOG.md"),
+    Path("SECURITY.md"),
+    Path("CODE_OF_CONDUCT.md"),
 )
 VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+(?:-(?:alpha|beta|rc)\.\d+)?$")
-
-
-def fail(message: str) -> None:
-    raise RuntimeError(message)
 
 
 def tracked_files() -> list[str]:

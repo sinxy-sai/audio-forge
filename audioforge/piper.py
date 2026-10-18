@@ -1,54 +1,37 @@
-"""Piper subprocess adapter."""
+"""Piper voice backend."""
 
 from __future__ import annotations
 
 import subprocess
 from pathlib import Path
 
-from .config import resolve_config_path
+from .config import VoiceConfig
 
 
 class PiperUnavailable(RuntimeError):
-    """Raised when Piper or its voice model is not configured."""
+    """Raised when Piper cannot render a voice request."""
 
 
-def find_piper(config_file: Path | None = None, explicit: str | None = None, configured: str | None = None) -> str | None:
-    if explicit:
-        path = Path(explicit).expanduser()
-        return str(path.resolve()) if path.is_file() else None
-    return resolve_config_path(config_file, configured) if config_file else None
+def _project_path(path: Path, base: Path) -> str:
+    try:
+        return path.relative_to(base).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
-def find_model(config_file: Path | None = None, explicit: str | None = None, configured: str | None = None) -> str | None:
-    if explicit:
-        path = Path(explicit).expanduser()
-        return str(path.resolve()) if path.is_file() else None
-    return resolve_config_path(config_file, configured) if config_file else None
-
-
-def render_voice(
-    text: str,
-    output: Path,
-    *,
-    config_file: Path | None = None,
-    configured_piper: str | None = None,
-    configured_model: str | None = None,
-    piper: str | None = None,
-    model: str | None = None,
-    volume: float = 0.95,
-) -> dict[str, str]:
+def render_voice(text: str, output: Path, *, voice: VoiceConfig, volume: float = 0.95) -> dict[str, str]:
     if not 0 < volume <= 1:
         raise ValueError("volume must be in the range (0, 1]")
-    executable = find_piper(config_file, piper, configured_piper)
-    voice_model = find_model(config_file, model, configured_model)
-    if not executable:
-        raise PiperUnavailable("Piper was not found; configure voice.executable in audioforge.config.json")
-    if not voice_model:
-        raise PiperUnavailable("Piper voice model was not found; configure voice.model in audioforge.config.json")
     output.parent.mkdir(parents=True, exist_ok=True)
-    command = [executable, "--model", voice_model, "--output_file", str(output), "--volume", str(volume)]
+    command = [str(voice.executable), "--model", str(voice.model), "--output_file", str(output), "--volume", str(volume)]
     completed = subprocess.run(command, input=text, text=True, capture_output=True)
     if completed.returncode:
         detail = completed.stderr.strip() or completed.stdout.strip() or "unknown Piper error"
-        raise RuntimeError(f"Piper failed: {detail}")
-    return {"backend": "piper", "executable": executable, "model": voice_model, "volume": str(volume)}
+        raise PiperUnavailable(f"Piper failed: {detail}")
+    return {
+        "backend": "piper",
+        "config": voice.config_file.name,
+        "executable": _project_path(voice.executable, voice.config_file.parent),
+        "model": _project_path(voice.model, voice.config_file.parent),
+        "volume": str(volume),
+    }

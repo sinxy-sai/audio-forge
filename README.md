@@ -2,7 +2,7 @@
 
 Audio Forge is a local-first Codex skill for creating short music cues, sound effects, and Piper-backed voice projects as reproducible, editable WAV projects.
 
-It turns a natural-language brief into an `AudioProject`. Procedural music and effects use the Python standard library; voice uses a locally installed Piper executable and voice model. Each project keeps its brief, manifest, parameters, render, and inspection data together.
+It turns a natural-language brief into an `AudioProject`. Procedural music and effects use the Python standard library; voice uses a project-local Piper executable and voice model. Each project keeps its brief, manifest, parameters, render, and inspection data together.
 
 ## What it supports
 
@@ -37,7 +37,7 @@ Ask Codex for a concrete audio task, for example:
 
 ```text
 Use Audio Forge to create a 0.4 second confirmation sound for a game UI.
-Make it bright, with two rising tones, render a WAV, keep the Python source,
+ Make it bright, with two rising tones, render a WAV, keep the project parameters,
 and inspect the output for clipping.
 ```
 
@@ -77,6 +77,19 @@ scripts/inspect_wav.py  WAV metadata, peak, and clipping inspector
 audioforge/             Local-first CLI and backend adapters
 references/presets.md   Starting points for common music and effect types
 examples/ui_confirm.py  Small editable confirmation-effect example
+```
+
+The Python package is intentionally split by responsibility:
+
+```text
+audioforge/
+|-- cli.py        argument parsing only
+|-- commands.py   command orchestration
+|-- config.py     project-local configuration
+|-- project.py    AudioProject files
+|-- procedural.py music and sound effects
+|-- piper.py      Piper voice backend
+`-- wav.py        PCM WAV writing and inspection
 ```
 
 Run the tools directly from the repository:
@@ -119,3 +132,5 @@ Audio Forge is released under the [MIT License](LICENSE).
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow and quality checks.
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for participation standards.
