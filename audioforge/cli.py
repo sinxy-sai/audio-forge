@@ -64,6 +64,7 @@ def command_generate(args: argparse.Namespace) -> int:
                 configured_model=voice.get("model"),
                 piper=args.piper,
                 model=args.model,
+                volume=args.volume,
             )
         except ConfigUnavailable as error:
             if not (args.piper and args.model):
@@ -152,6 +153,7 @@ def build_parser() -> argparse.ArgumentParser:
     voice.add_argument("--config")
     voice.add_argument("--piper")
     voice.add_argument("--model")
+    voice.add_argument("--volume", type=float, default=0.95)
     voice.set_defaults(handler=command_generate)
 
     inspect = subparsers.add_parser("inspect", help="inspect a PCM WAV")

@@ -49,7 +49,7 @@ Use this skill to turn a music, sound-effect, or voice brief into a small, edita
    If the user only requests a quick preview, the project manifest and WAV may be placed directly in the requested folder.
 
 6. For music and effects, use `python -m audioforge generate`; keep parameters in `source/parameters.json` and the manifest in `project.json`.
-7. For voice, use `python -m audioforge generate voice` with the work project's `audioforge.config.json`. If the project config or Piper files are unavailable, report the exact project path that is missing; do not silently switch to a cloud service.
+7. For voice, use `python -m audioforge generate voice` with the work project's `audioforge.config.json`. The default Piper volume is `0.95` to leave headroom; change it only when the brief requires a different level. If the project config or Piper files are unavailable, report the exact project path that is missing; do not silently switch to a cloud service.
 8. Inspect the actual output with `scripts/inspect_wav.py` or `python -m audioforge inspect`. Report duration, sample rate, bit depth, channels, peak level, and clipping count. If clipping is present, lower the gain and render again unless the user explicitly requested a clipped/lo-fi effect.
 9. Report absolute paths to the project, WAV, and parameters, plus the checks that were run. Mention any defaults or limitations that affected the result.
 

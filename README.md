@@ -91,6 +91,8 @@ python -m audioforge doctor
 
 Procedural commands use Python's standard library and do not require package installation. Voice generation additionally requires the work project's Piper executable and voice model configured in `audioforge.config.json`.
 
+Voice rendering defaults to Piper volume `0.95` so the generated WAV keeps headroom. Override it with `--volume` when needed.
+
 ## Output layout
 
 Generated projects should keep the brief, manifest, source parameters, render, and delivery notes together:
