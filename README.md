@@ -51,7 +51,19 @@ Render a 44.1 kHz stereo WAV and keep the editable project parameters.
 
 The skill will ask for missing details when they materially affect the result and will state any defaults it uses.
 
-For a local voice project, configure Piper and a voice model, then ask:
+For a local voice project, add `audioforge.config.json` to the work project. Its paths are relative to that project:
+
+```json
+{
+  "voice": {
+    "backend": "piper",
+    "executable": "tools/piper/piper.exe",
+    "model": "models/voices/zh_CN.onnx"
+  }
+}
+```
+
+Then ask:
 
 ```text
 Use Audio Forge to render the Chinese voice line “任务完成” with the local Piper voice model. Keep the AudioProject manifest and inspect the WAV.
@@ -77,7 +89,7 @@ python scripts/inspect_wav.py renders/ui-confirm.wav --fail-on-clip
 python -m audioforge doctor
 ```
 
-Procedural commands use Python's standard library and do not require package installation. Voice generation additionally requires a local Piper executable and voice model.
+Procedural commands use Python's standard library and do not require package installation. Voice generation additionally requires the work project's Piper executable and voice model configured in `audioforge.config.json`.
 
 ## Output layout
 

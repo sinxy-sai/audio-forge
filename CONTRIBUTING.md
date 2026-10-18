@@ -9,6 +9,7 @@ Contributions are welcome for clearer skill guidance, better standard-library sy
 - Do not add copyrighted samples or files whose redistribution rights are unclear.
 - Keep the skill focused on local music, sound-effect, and Piper voice WAV projects.
 - Update the README when a command, file, or installation path changes.
+- Keep Piper paths in project-local `audioforge.config.json`; do not add system environment configuration to the skill.
 
 ## Local checks
 

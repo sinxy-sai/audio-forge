@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .config import ConfigUnavailable, load_config
 from .doctor import status
 from .piper import PiperUnavailable, render_voice
 from .procedural import render_music, render_sfx
@@ -30,7 +31,7 @@ def _print_report(report: dict[str, object]) -> None:
 
 
 def command_doctor(args: argparse.Namespace) -> int:
-    report = status(args.piper, args.model)
+    report = status(args.config, args.piper, args.model)
     for key, value in report.items():
         print(f"{key}: {value}")
     return 0
@@ -53,6 +54,21 @@ def command_generate(args: argparse.Namespace) -> int:
         source = {"kind": "sfx", **inputs, **metadata}
     else:
         try:
+            config_file, config_data = load_config(args.config, [Path.cwd(), root])
+            voice = config_data.get("voice", {})
+            metadata = render_voice(
+                args.text,
+                render_path,
+                config_file=config_file,
+                configured_piper=voice.get("executable"),
+                configured_model=voice.get("model"),
+                piper=args.piper,
+                model=args.model,
+            )
+        except ConfigUnavailable as error:
+            if not (args.piper and args.model):
+                print(f"error: {error}", file=sys.stderr)
+                return 2
             metadata = render_voice(args.text, render_path, piper=args.piper, model=args.model)
         except (PiperUnavailable, RuntimeError) as error:
             print(f"error: {error}", file=sys.stderr)
@@ -110,6 +126,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     doctor = subparsers.add_parser("doctor", help="report local tool availability")
+    doctor.add_argument("--config")
     doctor.add_argument("--piper")
     doctor.add_argument("--model")
     doctor.set_defaults(handler=command_doctor)
@@ -132,6 +149,7 @@ def build_parser() -> argparse.ArgumentParser:
     sfx.set_defaults(handler=command_generate)
     voice = generate_sub.add_parser("voice", parents=[common])
     voice.add_argument("--text", required=True)
+    voice.add_argument("--config")
     voice.add_argument("--piper")
     voice.add_argument("--model")
     voice.set_defaults(handler=command_generate)
