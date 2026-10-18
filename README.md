@@ -1,18 +1,19 @@
 # Audio Forge
 
-Audio Forge is a Codex skill for creating short music cues and sound effects as reproducible, editable WAV projects.
+Audio Forge is a local-first Codex skill for creating short music cues, sound effects, and Piper-backed voice projects as reproducible, editable WAV projects.
 
-It turns a natural-language brief into a small Python synthesis project. The default path uses only the Python standard library, writes PCM WAV, and keeps the source script beside the rendered audio.
+It turns a natural-language brief into an `AudioProject`. Procedural music and effects use the Python standard library; voice uses a locally installed Piper executable and voice model. Each project keeps its brief, manifest, parameters, render, and inspection data together.
 
 ## What it supports
 
 - Short background cues and loopable musical ideas
 - UI clicks, confirmations, warnings, impacts, rises, and whooshes
+- Local Piper voice rendering
 - 16-bit PCM WAV output
 - 44.1 kHz by default, with configurable sample rate and channel count
 - Output inspection for duration, format, peak level, and clipping
 
-Audio Forge is intended for prototypes and game/product assets. It does not provide MIDI or DAW export, external audio-model calls, downloaded samples, or professional mastering.
+Audio Forge is intended for prototypes and game/product assets. It does not provide Blender integration, MIDI or DAW export, cloud audio calls, automatic model/sample downloads, or professional mastering.
 
 ## Install as a Codex skill
 
@@ -45,16 +46,23 @@ For a music cue:
 ```text
 Use Audio Forge to create an 8 second loopable sci-fi background cue.
 Use a restrained low pulse, suspended tones, and a short rising motif.
-Render a 44.1 kHz stereo WAV and keep the editable source script.
+Render a 44.1 kHz stereo WAV and keep the editable project parameters.
 ```
 
 The skill will ask for missing details when they materially affect the result and will state any defaults it uses.
+
+For a local voice project, configure Piper and a voice model, then ask:
+
+```text
+Use Audio Forge to render the Chinese voice line “任务完成” with the local Piper voice model. Keep the AudioProject manifest and inspect the WAV.
+```
 
 ## Included tools
 
 ```text
 scripts/synth_tone.py   Minimal dependency-free WAV generator
 scripts/inspect_wav.py  WAV metadata, peak, and clipping inspector
+audioforge/             Local-first CLI and backend adapters
 references/presets.md   Starting points for common music and effect types
 examples/ui_confirm.py  Small editable confirmation-effect example
 ```
@@ -66,23 +74,29 @@ python scripts/synth_tone.py renders/tone.wav --frequency 440 --duration 0.5
 python scripts/inspect_wav.py renders/tone.wav --fail-on-clip
 python examples/ui_confirm.py renders/ui-confirm.wav
 python scripts/inspect_wav.py renders/ui-confirm.wav --fail-on-clip
+python -m audioforge doctor
 ```
 
-All commands use Python's standard library and do not require package installation.
+Procedural commands use Python's standard library and do not require package installation. Voice generation additionally requires a local Piper executable and voice model.
 
 ## Output layout
 
-Generated projects should keep the brief, source, render, and delivery notes together:
+Generated projects should keep the brief, manifest, source parameters, render, and delivery notes together:
 
 ```text
 project/
+|-- project.json
 |-- brief.md
 |-- source/
-|   `-- *.py
+|   `-- parameters.json
 |-- renders/
 |   `-- *.wav
+|-- metadata/
+|   `-- backend.json
 `-- README.md
 ```
+
+The `project.json` layout is documented in `references/project-protocol.md` and is reserved for a future browser editor.
 
 ## License
 

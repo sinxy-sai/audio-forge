@@ -1,4 +1,4 @@
 interface:
   display_name: "Audio Forge"
-  short_description: "Create editable local music and sound-effect WAVs"
-  default_prompt: "Create a short WAV prototype from my music or sound-effect brief under the caller's current working directory, keep the Python source editable, and inspect the rendered file. Never write generated files into the installed skill directory."
+  short_description: "Create local music, sound effects, and Piper voice WAVs"
+  default_prompt: "Create a local AudioProject from my music, sound-effect, or voice brief under the caller's current working directory, use Piper for voice when requested, keep parameters editable, and inspect the rendered WAV. Never write generated files into the installed skill directory."

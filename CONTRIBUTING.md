@@ -7,7 +7,7 @@ Contributions are welcome for clearer skill guidance, better standard-library sy
 - Keep the default workflow dependency-free and local.
 - Keep generated audio source editable and reproducible.
 - Do not add copyrighted samples or files whose redistribution rights are unclear.
-- Keep the skill focused on short music and sound-effect WAV creation.
+- Keep the skill focused on local music, sound-effect, and Piper voice WAV projects.
 - Update the README when a command, file, or installation path changes.
 
 ## Local checks
@@ -17,6 +17,7 @@ From the repository root, run:
 ```powershell
 python scripts/synth_tone.py renders/contributing-smoke.wav --frequency 440 --duration 0.25
 python scripts/inspect_wav.py renders/contributing-smoke.wav --fail-on-clip
+python -m audioforge doctor
 ```
 
 Also run the Codex skill validator when editing `SKILL.md` or `agents/openai.yaml`:
