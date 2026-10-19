@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import audioop
 import array
 import json
 import os
@@ -56,9 +55,9 @@ def inspect_reference(audio: Path) -> ReferenceCandidate | None:
         count = frames * channels
         if len(raw) != count * 2:
             return None
-        peak = audioop.max(raw, 2) / 32767.0 if raw else 0.0
         samples = array.array("h")
         samples.frombytes(raw)
+        peak = max((abs(value) for value in samples), default=0) / 32767.0
         clipped = sum(abs(value) >= 32767 for value in samples)
         duration = frames / sample_rate
         if duration < 1.5 or duration > 20.0 or peak < 0.01 or clipped:

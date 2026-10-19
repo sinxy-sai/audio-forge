@@ -2,6 +2,12 @@
 
 All notable changes to Audio Forge are documented here.
 
+## [0.3.1] - 2026-10-19
+
+### Fixed
+
+- Replaced the removed Python `audioop` dependency in reference-audio inspection so the release smoke test works on current Python versions.
+
 ## [0.3.0] - 2026-10-19
 
 ### Added
