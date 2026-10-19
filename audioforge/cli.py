@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from .commands import doctor, export, generate, inspect, transcribe
+from .commands import clone_candidates, doctor, export, generate, inspect, transcribe
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -42,6 +42,16 @@ def build_parser() -> argparse.ArgumentParser:
     voice.add_argument("--model", help="one-off model override")
     voice.add_argument("--volume", type=float, default=0.95)
     voice.set_defaults(handler=generate)
+
+    clone = kinds.add_parser("voice-clone", parents=[common])
+    clone.add_argument("--text", required=True)
+    clone.add_argument("--config")
+    clone.set_defaults(handler=generate)
+
+    candidates = subparsers.add_parser("clone-candidates", help="list local WAV/.lab voice-clone references")
+    candidates.add_argument("--root", required=True)
+    candidates.add_argument("--limit", type=int, default=10)
+    candidates.set_defaults(handler=clone_candidates)
 
     inspect_parser = subparsers.add_parser("inspect", help="inspect a PCM WAV")
     inspect_parser.add_argument("path")

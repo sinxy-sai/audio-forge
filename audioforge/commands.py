@@ -7,13 +7,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .config import ConfigUnavailable, load_asr_config, load_voice_config
+from .config import ConfigUnavailable, load_asr_config, load_voice_config, load_voice_clone_config
 from .doctor import status
 from .piper import PiperUnavailable, render_voice
 from .transcribe import TranscriptionUnavailable, transcribe_audio, write_transcription
 from .procedural import render_music, render_sfx
 from .project import write_project, write_source_json
 from .wav import inspect_pcm
+from .voice_clone import CosyVoiceUnavailable, candidate_report, choose_reference, find_reference_candidates, read_reference_text, render_cosyvoice
 
 
 def slug(value: str) -> str:
@@ -33,7 +34,7 @@ def doctor(args) -> int:
 
 def generate(args) -> int:
     root = Path(args.output).expanduser().resolve()
-    title = args.title or (args.brief if args.kind != "voice" else args.text)
+    title = args.title or (args.brief if args.kind not in ("voice", "voice-clone") else args.text)
     render_path = root / "renders" / f"{slug(args.title or args.kind)}.wav"
 
     if args.kind == "music":
@@ -48,7 +49,7 @@ def generate(args) -> int:
         inputs = {"brief": args.brief, "duration": args.duration, "seed": args.seed}
         source = {"kind": "sfx", **inputs, **metadata}
         track_id, brief = "sfx-main", args.brief
-    else:
+    elif args.kind == "voice":
         try:
             voice = load_voice_config(args.config, [Path.cwd(), root], args.piper, args.model)
             metadata = render_voice(args.text, render_path, voice=voice, volume=args.volume)
@@ -59,6 +60,52 @@ def generate(args) -> int:
         inputs = {"text": args.text, "model": str(voice.model)}
         source = {"kind": "voice", **inputs, **metadata}
         track_id, brief = "voice-main", args.text
+    else:
+        clone = None
+        candidate = None
+        reference_text = None
+        try:
+            clone = load_voice_clone_config(args.config, [Path.cwd(), root])
+            candidate = choose_reference(clone)
+            reference_text = clone.reference_text or read_reference_text(candidate.audio)
+            metadata = render_cosyvoice(
+                args.text,
+                render_path,
+                config=clone,
+                candidate=candidate,
+                reference_text=reference_text,
+            )
+        except (ConfigUnavailable, CosyVoiceUnavailable, RuntimeError, ValueError, OSError) as error:
+            error_backend = {"name": "cosyvoice", "status": "failed", "error": str(error)}
+            failed_inputs = {"text": args.text}
+            if candidate:
+                failed_inputs.update({
+                    "reference_audio": str(candidate.audio),
+                    "reference_text": reference_text or "",
+                })
+            write_project(
+                root,
+                title=title,
+                kind="voice-clone",
+                backend=error_backend,
+                inputs=failed_inputs,
+                tracks=[],
+                outputs=[],
+                brief=args.text,
+                extra={"analysis": {"error": str(error)}},
+            )
+            write_source_json(root, "parameters.json", {"kind": "voice-clone", **failed_inputs})
+            print(f"error: {error}", file=sys.stderr)
+            return 2
+        backend = {"name": "cosyvoice", **metadata}
+        inputs = {
+            "text": args.text,
+            "model": str(clone.model),
+            "reference_audio": str(candidate.audio),
+            "reference_text": reference_text,
+        }
+        source = {"kind": "voice-clone", **inputs, **metadata}
+        track_id, brief = "voice-clone-main", args.text
 
     track = {"id": track_id, "file": f"renders/{render_path.name}", "start": 0, "gain_db": 0, "pan": 0}
     write_project(root, title=title, kind=args.kind, backend=backend, inputs=inputs, tracks=[track], outputs=[render_path], brief=brief, extra={"analysis": metadata})
@@ -66,6 +113,20 @@ def generate(args) -> int:
     print(f"project: {root}")
     print(f"render: {render_path}")
     print_report(inspect_pcm(render_path))
+    return 0
+
+
+def clone_candidates(args) -> int:
+    root = Path(args.root).expanduser().resolve()
+    candidates = find_reference_candidates(root)
+    if not candidates:
+        print(f"no usable WAV/.lab reference pairs under: {root}", file=sys.stderr)
+        return 2
+    for index, candidate in enumerate(candidates[: args.limit], start=1):
+        report = candidate_report(candidate)
+        print(f"{index}. {report['audio']}")
+        print(f"   transcript: {report['transcript']}")
+        print(f"   duration: {report['duration']}s, rate: {report['sample_rate']}, channels: {report['channels']}, peak: {report['peak']}")
     return 0
 
 

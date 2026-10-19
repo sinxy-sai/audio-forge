@@ -7,7 +7,7 @@ Audio Forge 的语音后端按任务、资源成本和授权条件选择。模�
 | 需求 | 推荐 | 本地成本 | 当前状态 |
 | --- | --- | --- | --- |
 | 固定音色、低资源配音 | Piper | 低：通常几十到数百 MB | 已接入 |
-| 中文或多语言声音克隆 | CosyVoice | 高：通常需要数 GB 模型目录和较强 GPU | 计划接入 |
+| 中文或多语言声音克隆 | CosyVoice | 高：通常需要数 GB 模型目录和较强 GPU | 已接入本地 zero-shot 推理 |
 | 中文定制音色和少样本训练 | GPT-SoVITS | 高：训练、显存和依赖成本高 | 计划评估 |
 | 轻量音色转换 | OpenVoice | 中 | 计划评估 |
 | 普通语音转文字 | faster-whisper small + int8 | 中低：约数百 MB到 1 GB | 已接入 |
@@ -30,7 +30,7 @@ Piper 通常使用 ONNX 声音模型。单个中文模型常见为几十到数�
 - 约 2–4 GB：常见 0.5B 级完整模型目录
 - 更高配置可能需要 GPU 和更多显存
 
-实际大小随 CosyVoice 版本、精度、声码器和运行时变化。它是 Audio Forge 首选的下一阶段克隆后端，但当前仓库还没有实现 CosyVoice 调用器。
+实际大小随 CosyVoice 版本、精度、声码器和运行时变化。Audio Forge 使用隔离的 CosyVoice Python 环境和本地源码/模型目录运行 zero-shot 推理。参考音频应与同名 `.lab` 文本配对；CLI 的 `--text` 是新的合成文本。Audio Forge 不自动下载 CosyVoice 权重。
 
 ### GPT-SoVITS、OpenVoice、F5-TTS
 
@@ -91,11 +91,14 @@ work-project/
 │  ├─ cosyvoice/
 │  └─ asr/
 ├─ assets/
-│  └─ reference-speaker.wav
+│  └─ reference-audio/
+│     └─ <speaker>/
+│        ├─ clip-001.wav
+│        └─ clip-001.lab
 └─ audioforge.config.json
 ```
 
-Audio Forge 只读取配置、检查文件、调用已安装后端并记录 metadata。它不自动创建 `.venv`，不自动下载权重，也不把模型文件复制进生成项目。
+`assets/reference-audio/` 保存参考 WAV 及其同名 `.lab` 文本；`models/` 保存本地模型目录；`projects/` 保存生成的 AudioProject。Audio Forge 只读取配置、检查文件、调用已安装后端并记录 metadata。它不自动创建 `.venv`，不自动下载权重，也不把模型文件复制进生成项目。
 
 推荐配置形状：
 
@@ -109,7 +112,8 @@ Audio Forge 只读取配置、检查文件、调用已安装后端并记录 meta
   "voice_clone": {
     "backend": "cosyvoice",
     "model": "models/cosyvoice/CosyVoice2-0.5B",
-    "reference_audio": "assets/reference-speaker.wav"
+    "reference_root": "assets/reference-audio",
+    "reference_audio": "assets/reference-audio/<speaker>/clip-001.wav"
   },
   "asr": {
     "backend": "faster-whisper",

@@ -2,6 +2,19 @@
 
 All notable changes to Audio Forge are documented here.
 
+## [0.3.0] - 2026-10-19
+
+### Added
+
+- Added local CosyVoice zero-shot voice cloning with WAV/`.lab` reference discovery.
+- Added `clone-candidates` and `generate voice-clone` CLI workflows.
+- Added project-local CosyVoice configuration and isolated worker execution.
+
+### Documentation
+
+- Documented generic `assets/reference-audio/<speaker>/` and `models/` work-project layout.
+- Updated local voice-model and project-configuration guidance.
+
 ## [Unreleased]
 
 ### Documentation

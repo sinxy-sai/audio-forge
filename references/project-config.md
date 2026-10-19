@@ -11,6 +11,15 @@ Audio Forge 的本地工具和模型配置属于工作项目，不写入系统�
     "executable": ".venv/Scripts/piper.exe",
     "model": "models/voices/zh_CN.onnx"
   },
+  "voice_clone": {
+    "backend": "cosyvoice",
+    "python": "../.venv-cosyvoice/Scripts/python.exe",
+    "source": "../cosyvoice-src",
+    "model": "models/cosyvoice/CosyVoice2-0.5B",
+    "reference_root": "assets/reference-audio",
+    "reference_audio": "assets/reference-audio/<speaker>/clip-001.wav",
+    "device": "cuda"
+  },
   "asr": {
     "backend": "faster-whisper",
     "model": "models/asr/faster-whisper-tiny",

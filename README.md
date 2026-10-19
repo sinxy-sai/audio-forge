@@ -1,6 +1,6 @@
 # Audio Forge
 
-Audio Forge is a local-first Codex skill for creating short music cues, sound effects, and Piper-backed voice projects as reproducible, editable WAV projects.
+Audio Forge is a local-first Codex skill for creating short music cues, sound effects, Piper voice projects, and local CosyVoice zero-shot voice-clone projects as reproducible, editable WAV projects.
 
 It turns a natural-language brief into an `AudioProject`. Procedural music and effects use the Python standard library; voice uses a project-local Piper executable and voice model. Each project keeps its brief, manifest, parameters, render, and inspection data together.
 
@@ -9,6 +9,7 @@ It turns a natural-language brief into an `AudioProject`. Procedural music and e
 - Short background cues and loopable musical ideas
 - UI clicks, confirmations, warnings, impacts, rises, and whooshes
 - Local Piper voice rendering
+- Local CosyVoice zero-shot voice cloning from a reference WAV and matching `.lab` transcript
 - Optional local faster-whisper transcription with timestamped project analysis
 - 16-bit PCM WAV output
 - 44.1 kHz by default, with configurable sample rate and channel count
@@ -52,7 +53,7 @@ Render a 44.1 kHz stereo WAV and keep the editable project parameters.
 
 The skill will ask for missing details when they materially affect the result and will state any defaults it uses.
 
-For a local voice project, add `audioforge.config.json` to the work project. Its paths are relative to that project:
+For Piper voice rendering, add `audioforge.config.json` to the work project. Its paths are relative to that project:
 
 ```json
 {
@@ -69,6 +70,50 @@ Then ask:
 ```text
 Use Audio Forge to render the Chinese voice line “任务完成” with the local Piper voice model. Keep the AudioProject manifest and inspect the WAV.
 ```
+
+For local CosyVoice cloning, configure its isolated Python runtime, source checkout, and already-present model directory. Each reference WAV should have a same-stem `.lab` file containing the exact spoken words:
+
+```json
+{
+  "voice_clone": {
+    "backend": "cosyvoice",
+    "python": "../.venv-cosyvoice/Scripts/python.exe",
+    "source": "../cosyvoice-src",
+    "model": "models/cosyvoice/CosyVoice2-0.5B",
+    "reference_root": "assets/reference-audio",
+    "reference_audio": "assets/reference-audio/<speaker>/clip-001.wav",
+    "device": "cuda"
+  }
+}
+```
+
+A typical work-project layout is:
+
+```text
+work-project/
+├── assets/
+│   └── reference-audio/
+│       └── <speaker>/
+│           ├── clip-001.wav
+│           └── clip-001.lab
+├── models/
+│   ├── voices/
+│   ├── cosyvoice/
+│   └── asr/
+├── projects/
+└── audioforge.config.json
+```
+
+`assets/reference-audio/` stores reference clips and their matching transcripts. `models/` stores local model directories. Generated AudioProjects belong under `projects/`; the skill repository itself should not contain model weights, reference corpora, or render outputs.
+
+List suitable reference clips, then render a voice-clone project:
+
+```powershell
+python -m audioforge clone-candidates --root .\assets\reference-audio
+python -m audioforge generate voice-clone --text "恭喜你克隆成功" --config .\audioforge.config.json --output .\projects\voice-clone-example
+```
+
+CosyVoice source code, Python runtime, and model weights are not installed or downloaded by Audio Forge. The `.lab` text paired with the selected reference WAV becomes the prompt text; `--text` is the new synthesis text.
 
 ## Core CLI and package
 
@@ -89,6 +134,7 @@ audioforge/
 |-- project.py    AudioProject files
 |-- procedural.py music and sound effects
 |-- piper.py      Piper voice backend
+|-- voice_clone.py reference discovery and CosyVoice adapter
 |-- transcribe.py faster-whisper transcription backend
 `-- wav.py        PCM WAV writing and inspection
 ```
@@ -106,7 +152,7 @@ python -m audioforge transcribe --audio .\audioforge-real-demo\whisper-input\ren
 
 Procedural commands use Python's standard library and do not require package installation. Audio Forge does not create a `.venv` automatically. Voice generation additionally requires a Piper executable and voice model available to the work project and configured in `audioforge.config.json`.
 
-For local voice and speech-recognition model choices, see [references/voice-model-selection.md](references/voice-model-selection.md). Piper and faster-whisper are integrated as local backends. CosyVoice remains a planned voice-cloning backend, and no model is downloaded automatically.
+For local voice and speech-recognition model choices, see [references/voice-model-selection.md](references/voice-model-selection.md). Piper, faster-whisper, and CosyVoice are integrated as local backends. No model is downloaded automatically.
 
 Voice rendering defaults to Piper volume `0.95` so the generated WAV keeps headroom. Override it with `--volume` when needed.
 

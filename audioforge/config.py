@@ -28,6 +28,18 @@ class AsrConfig:
     compute_type: str
 
 
+@dataclass(frozen=True)
+class VoiceCloneConfig:
+    config_file: Path
+    python: Path
+    source: Path
+    model: Path
+    reference_root: Path
+    reference_audio: Path | None
+    reference_text: str | None
+    device: str
+
+
 def find_config(explicit: str | None = None, search_paths: list[Path] | None = None) -> Path | None:
     if explicit:
         candidate = Path(explicit).expanduser().resolve()
@@ -61,6 +73,55 @@ def _resolve(config_file: Path, value: str | None, label: str) -> Path:
     if not path.is_file():
         raise ConfigUnavailable(f"voice.{label} does not exist: {path}")
     return path
+
+
+def _resolve_path(config_file: Path, value: str | None, label: str, *, directory: bool = False, must_exist: bool = True) -> Path:
+    if not value:
+        raise ConfigUnavailable(f"voice_clone.{label} is missing in {config_file}")
+    path = Path(str(value)).expanduser()
+    path = path if path.is_absolute() else config_file.parent / path
+    path = path.resolve()
+    valid = (path.is_dir() if directory else path.is_file()) if must_exist else True
+    if not valid:
+        suffix = "directory" if directory else "file"
+        raise ConfigUnavailable(f"voice_clone.{label} does not exist as a {suffix}: {path}")
+    return path
+
+
+def load_voice_clone_config(explicit: str | None = None, search_paths: list[Path] | None = None) -> VoiceCloneConfig:
+    config_file = find_config(explicit, search_paths)
+    if not config_file:
+        raise ConfigUnavailable("audioforge.config.json was not found in the work project")
+    data = _load(config_file)
+    clone = data.get("voice_clone")
+    if not isinstance(clone, dict):
+        raise ConfigUnavailable(f"voice_clone configuration is missing in {config_file}")
+    backend = str(clone.get("backend", "cosyvoice"))
+    if backend != "cosyvoice":
+        raise ConfigUnavailable(f"unsupported voice_clone backend: {backend}")
+    python = _resolve_path(config_file, clone.get("python"), "python")
+    source = _resolve_path(config_file, clone.get("source"), "source", directory=True)
+    model = _resolve_path(config_file, clone.get("model"), "model", directory=True, must_exist=False)
+    reference_root_value = clone.get("reference_root") or str(config_file.parent)
+    reference_root = Path(str(reference_root_value)).expanduser()
+    reference_root = reference_root if reference_root.is_absolute() else config_file.parent / reference_root
+    reference_root = reference_root.resolve()
+    if not reference_root.is_dir():
+        raise ConfigUnavailable(f"voice_clone.reference_root does not exist as a directory: {reference_root}")
+    reference_audio = None
+    if clone.get("reference_audio"):
+        reference_audio = _resolve_path(config_file, clone.get("reference_audio"), "reference_audio")
+    reference_text = str(clone["reference_text"]).strip() if clone.get("reference_text") else None
+    return VoiceCloneConfig(
+        config_file=config_file,
+        python=python,
+        source=source,
+        model=model,
+        reference_root=reference_root,
+        reference_audio=reference_audio,
+        reference_text=reference_text,
+        device=str(clone.get("device", "cuda")),
+    )
 
 
 def load_voice_config(
